@@ -1,0 +1,28 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+numpy = "*"
+plotly = "*"
+requests = "*"
+jupyter = "*"
+fastapi = "*"
+uvicorn = "*"
+pandas = "*"
+langchain = "*"
+langchain-experimental = "*"
+openai = "*"
+chromadb = "*"
+newsapi = "*"
+newsapi-python = "*"
+yfinance = "*"
+prophet = "*"
+tiktoken = "*"
+gunicorn = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"

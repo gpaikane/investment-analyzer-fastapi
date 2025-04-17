@@ -1,0 +1,161 @@
+Method,Summary,Input,Output  type,Output Indexes or Keys
+"class yfinance.Ticker(ticker, session=None, proxy=None)","Generates a ticker of the stock
+Example:
+import yfinance as yf
+dat = yf.Ticker(""MSFT"")
+dat2 = yf.Ticker(""TCS.NS"")","Ticker name, as supported by yfianance","yfinance.ticker.Ticker
+",NA
+Ticker.get_history_metadata(proxy=None) → dict,Get metadata of history,Ticker,dict,"dict_keys(['currency', 'symbol', 'exchangeName', 'fullExchangeName', 'instrumentType', 'firstTradeDate', 'regularMarketTime', 'hasPrePostMarketData', 'gmtoffset', 'timezone', 'exchangeTimezoneName', 'regularMarketPrice', 'fiftyTwoWeekHigh', 'fiftyTwoWeekLow', 'regularMarketDayHigh', 'regularMarketDayLow', 'regularMarketVolume', 'longName', 'shortName', 'chartPreviousClose', 'previousClose', 'scale', 'priceHint', 'currentTradingPeriod', 'tradingPeriods', 'dataGranularity', 'range', 'validRanges'])"
+"Ticker.get_dividends(proxy=None, period='max') → Series",returns a series of devidends for released dates,Ticker,Series,Date as index and dividends as values as float
+"Ticker.get_splits(proxy=None, period='max') → Series",returns a series of splits for dates,Ticker,Series,Date as index and splits as values as float
+yfinance.Ticker.get_shares_full, retrieves historical share count data for a given company,Ticker,Series,Date as index and share count as values as int64
+Ticker.get_info(proxy=None) → dict,"A Python dictionary with a wide range of company information, such as:
+",Ticker,dict,"dict_keys(['address1', 'address2', 'city', 'zip', 'country', 'phone', 'fax', 'website', 'industry', 'industryKey', 'industryDisp', 'sector', 'sectorKey', 'sectorDisp', 'longBusinessSummary', 'fullTimeEmployees', 'companyOfficers', 'compensationAsOfEpochDate', 'executiveTeam', 'maxAge', 'priceHint', 'previousClose', 'open', 'dayLow', 'dayHigh', 'regularMarketPreviousClose', 'regularMarketOpen', 'regularMarketDayLow', 'regularMarketDayHigh', 'dividendRate', 'dividendYield', 'exDividendDate', 'payoutRatio', 'fiveYearAvgDividendYield', 'beta', 'trailingPE', 'forwardPE', 'volume', 'regularMarketVolume', 'averageVolume', 'averageVolume10days', 'averageDailyVolume10Day', 'bid', 'ask', 'bidSize', 'askSize', 'marketCap', 'fiftyTwoWeekLow', 'fiftyTwoWeekHigh', 'priceToSalesTrailing12Months', 'fiftyDayAverage', 'twoHundredDayAverage', 'trailingAnnualDividendRate', 'trailingAnnualDividendYield', 'currency', 'tradeable', 'enterpriseValue', 'profitMargins', 'floatShares', 'sharesOutstanding', 'heldPercentInsiders', 'heldPercentInstitutions', 'impliedSharesOutstanding', 'bookValue', 'priceToBook', 'lastFiscalYearEnd', 'nextFiscalYearEnd', 'mostRecentQuarter', 'earningsQuarterlyGrowth', 'netIncomeToCommon', 'trailingEps', 'forwardEps', 'lastSplitFactor', 'lastSplitDate', 'enterpriseToRevenue', 'enterpriseToEbitda', '52WeekChange', 'SandP52WeekChange', 'lastDividendValue', 'lastDividendDate', 'quoteType', 'currentPrice', 'targetHighPrice', 'targetLowPrice', 'targetMeanPrice', 'targetMedianPrice', 'recommendationMean', 'recommendationKey', 'numberOfAnalystOpinions', 'totalCash', 'totalCashPerShare', 'ebitda', 'totalDebt', 'quickRatio', 'currentRatio', 'totalRevenue', 'debtToEquity', 'revenuePerShare', 'returnOnAssets', 'returnOnEquity', 'grossProfits', 'freeCashflow', 'operatingCashflow', 'earningsGrowth', 'revenueGrowth', 'grossMargins', 'ebitdaMargins', 'operatingMargins', 'financialCurrency', 'symbol', 'language', 'region', 'typeDisp', 'quoteSourceName', 'triggerable', 'customPriceAlertConfidence', 'marketState', 'regularMarketChangePercent', 'regularMarketPrice', 'shortName', 'longName', 'hasPrePostMarketData', 'firstTradeDateMilliseconds', 'regularMarketChange', 'regularMarketDayRange', 'fullExchangeName', 'averageDailyVolume3Month', 'fiftyTwoWeekLowChange', 'fiftyTwoWeekLowChangePercent', 'fiftyTwoWeekRange', 'fiftyTwoWeekHighChange', 'fiftyTwoWeekHighChangePercent', 'fiftyTwoWeekChangePercent', 'earningsTimestamp', 'earningsTimestampStart', 'earningsTimestampEnd', 'earningsCallTimestampStart', 'earningsCallTimestampEnd', 'isEarningsDateEstimate', 'epsTrailingTwelveMonths', 'epsForward', 'epsCurrentYear', 'priceEpsCurrentYear', 'fiftyDayAverageChange', 'fiftyDayAverageChangePercent', 'twoHundredDayAverageChange', 'twoHundredDayAverageChangePercent', 'sourceInterval', 'exchangeDataDelayedBy', 'averageAnalystRating', 'cryptoTradeable', 'corporateActions', 'regularMarketTime', 'exchange', 'messageBoardId', 'exchangeTimezoneName', 'exchangeTimezoneShortName', 'gmtOffSetMilliseconds', 'market', 'esgPopulated', 'trailingPegRatio'])"
+Ticker.get_fast_info(proxy=None),Returns a lightweight dictionary of key real-time financial data about a stock ticker,Ticker,dict,"['currency', 'dayHigh', 'dayLow', 'exchange', 'fiftyDayAverage', 'lastPrice', 'lastVolume', 'marketCap', 'open', 'previousClose', 'quoteType', 'regularMarketPreviousClose', 'shares', 'tenDayAverageVolume', 'threeMonthAverageVolume', 'timezone', 'twoHundredDayAverage', 'yearChange', 'yearHigh', 'yearLow']"
+"Ticker.get_income_stmt(proxy=None, as_dict=False, pretty=False, freq='yearly')","Returns income statements  as a  DataFrame or Dictionary according the input params
+The output can be “yearly” or “quarterly” or “trailing” Default is “yearly”  which can be changed in input params
+","Ticker
+Parameters
+:
+as_dict: bool
+Return table as Python dict Default is False
+
+pretty: bool
+Format row names nicely for readability Default is False
+
+freq: str
+“yearly” or “quarterly” or “trailing” Default is “yearly”
+
+proxy: str
+Optional. Proxy server URL scheme Default is None",DataFrame or dict,"Index(['TaxEffectOfUnusualItems', 'TaxRateForCalcs', 'NormalizedEBITDA',
+       'TotalUnusualItems', 'TotalUnusualItemsExcludingGoodwill',
+       'NetIncomeFromContinuingOperationNetMinorityInterest',
+       'ReconciledDepreciation', 'ReconciledCostOfRevenue', 'EBITDA', 'EBIT',
+       'NetInterestIncome', 'InterestExpense', 'InterestIncome',
+       'NormalizedIncome', 'NetIncomeFromContinuingAndDiscontinuedOperation',
+       'TotalExpenses', 'RentExpenseSupplemental', 'DilutedAverageShares',
+       'BasicAverageShares', 'DilutedEPS', 'BasicEPS',
+       'DilutedNIAvailtoComStockholders', 'NetIncomeCommonStockholders',
+       'OtherunderPreferredStockDividend', 'NetIncome',
+       'NetIncomeIncludingNoncontrollingInterests',
+       'NetIncomeContinuousOperations', 'TaxProvision', 'PretaxIncome',
+       'OtherNonOperatingIncomeExpenses', 'SpecialIncomeCharges',
+       'OtherSpecialCharges', 'WriteOff', 'RestructuringAndMergernAcquisition',
+       'NetNonOperatingInterestIncomeExpense', 'InterestExpenseNonOperating',
+       'InterestIncomeNonOperating', 'OperatingIncome', 'OperatingExpense',
+       'OtherOperatingExpenses',
+       'DepreciationAndAmortizationInIncomeStatement', 'Amortization',
+       'DepreciationIncomeStatement', 'SellingGeneralAndAdministration',
+       'SellingAndMarketingExpense', 'GeneralAndAdministrativeExpense',
+       'RentAndLandingFees', 'GrossProfit', 'CostOfRevenue', 'TotalRevenue',
+       'OperatingRevenue'],
+      dtype='object')
+
+Colums = Dates
+
+
+"
+"Ticker.get_balance_sheet(proxy=None, as_dict=False, pretty=False, freq='yearly')","Returns income statements  as a  DataFrame or Dictionary according the input params
+The output can be “yearly” or “quarterly” or “trailing” Default is “yearly”  which can be changed in input params","Ticker
+Parameters
+as_dict: bool
+Return table as Python dict Default is False
+
+pretty: bool
+Format row names nicely for readability Default is False
+
+freq: str
+“yearly” or “quarterly” Default is “yearly”
+
+proxy: str
+Optional. Proxy server URL scheme Default is None",DataFrame or dict,"Index(['TreasurySharesNumber', 'OrdinarySharesNumber', 'ShareIssued',
+       'NetDebt', 'TotalDebt', 'TangibleBookValue', 'InvestedCapital',
+       'WorkingCapital', 'NetTangibleAssets', 'CapitalLeaseObligations',
+       'CommonStockEquity', 'TotalCapitalization',
+       'TotalEquityGrossMinorityInterest', 'StockholdersEquity',
+       'OtherEquityInterest', 'TreasuryStock', 'RetainedEarnings',
+       'AdditionalPaidInCapital', 'CapitalStock', 'CommonStock',
+       'TotalLiabilitiesNetMinorityInterest',
+       'TotalNonCurrentLiabilitiesNetMinorityInterest',
+       'OtherNonCurrentLiabilities',
+       'NonCurrentPensionAndOtherPostretirementBenefitPlans',
+       'TradeandOtherPayablesNonCurrent', 'NonCurrentDeferredRevenue',
+       'NonCurrentDeferredTaxesLiabilities',
+       'LongTermDebtAndCapitalLeaseObligation',
+       'LongTermCapitalLeaseObligation', 'LongTermDebt', 'LongTermProvisions',
+       'CurrentLiabilities', 'OtherCurrentLiabilities',
+       'CurrentDebtAndCapitalLeaseObligation', 'CurrentCapitalLeaseObligation',
+       'CurrentDebt', 'PensionandOtherPostRetirementBenefitPlansCurrent',
+       'CurrentProvisions', 'Payables', 'OtherPayable', 'DividendsPayable',
+       'TotalTaxPayable', 'AccountsPayable', 'TotalAssets',
+       'TotalNonCurrentAssets', 'OtherNonCurrentAssets',
+       'NonCurrentPrepaidAssets', 'NonCurrentDeferredTaxesAssets',
+       'InvestmentinFinancialAssets', 'HeldToMaturitySecurities',
+       'AvailableForSaleSecurities',
+       'FinancialAssetsDesignatedasFairValueThroughProfitorLossTotal',
+       'LongTermEquityInvestment', 'InvestmentsinAssociatesatCost',
+       'GoodwillAndOtherIntangibleAssets', 'OtherIntangibleAssets', 'Goodwill',
+       'NetPPE', 'AccumulatedDepreciation', 'GrossPPE',
+       'ConstructionInProgress', 'OtherProperties',
+       'MachineryFurnitureEquipment', 'BuildingsAndImprovements',
+       'LandAndImprovements', 'Properties', 'CurrentAssets',
+       'OtherCurrentAssets', 'HedgingAssetsCurrent', 'CurrentDeferredAssets',
+       'RestrictedCash', 'PrepaidAssets', 'OtherReceivables',
+       'TaxesReceivable', 'AccountsReceivable',
+       'AllowanceForDoubtfulAccountsReceivable', 'GrossAccountsReceivable',
+       'CashCashEquivalentsAndShortTermInvestments',
+       'OtherShortTermInvestments', 'CashAndCashEquivalents',
+       'CashEquivalents', 'CashFinancial'],
+      dtype='object')
+
+Columns = Dates"
+"Ticker.get_cashflow(proxy=None, as_dict=False, pretty=False, freq='yearly')","Returns cash flow  as a  DataFrame or Dictionary according the input params
+The output can be “yearly” or “quarterly” or “trailing” Default is “yearly”  which can be changed in input params","Ticker
+Parameters
+as_dict: bool
+Return table as Python dict Default is False
+
+pretty: bool
+Format row names nicely for readability Default is False
+
+freq: str
+“yearly” or “quarterly” Default is “yearly”
+
+proxy: str
+Optional. Proxy server URL scheme Default is None",DataFrame or dict,"Index(['FreeCashFlow', 'RepurchaseOfCapitalStock', 'RepaymentOfDebt',
+       'IssuanceOfDebt', 'IssuanceOfCapitalStock', 'CapitalExpenditure',
+       'EndCashPosition', 'OtherCashAdjustmentOutsideChangeinCash',
+       'BeginningCashPosition', 'EffectOfExchangeRateChanges', 'ChangesInCash',
+       'FinancingCashFlow', 'NetOtherFinancingCharges', 'InterestPaidCFF',
+       'CashDividendsPaid', 'CommonStockDividendPaid',
+       'NetCommonStockIssuance', 'CommonStockPayments', 'CommonStockIssuance',
+       'NetIssuancePaymentsOfDebt', 'NetLongTermDebtIssuance',
+       'LongTermDebtPayments', 'LongTermDebtIssuance', 'InvestingCashFlow',
+       'InterestReceivedCFI', 'DividendsReceivedCFI',
+       'NetInvestmentPurchaseAndSale', 'SaleOfInvestment',
+       'PurchaseOfInvestment', 'NetBusinessPurchaseAndSale',
+       'PurchaseOfBusiness', 'NetPPEPurchaseAndSale', 'SaleOfPPE',
+       'CapitalExpenditureReported', 'OperatingCashFlow', 'TaxesRefundPaid',
+       'ChangeInWorkingCapital', 'ChangeInOtherCurrentAssets',
+       'ChangeInPayable', 'ChangeInReceivables', 'OtherNonCashItems',
+       'StockBasedCompensation', 'ProvisionandWriteOffofAssets',
+       'DepreciationAndAmortization', 'AmortizationCashFlow', 'Depreciation',
+       'PensionAndEmployeeBenefitExpense', 'GainLossOnInvestmentSecurities',
+       'NetForeignCurrencyExchangeGainLoss', 'GainLossOnSaleOfPPE',
+       'NetIncomeFromContinuingOperations'],
+      dtype='object')
+
+Columns = Dates"
+"Ticker.get_earnings_dates(limit=12, proxy=None) → DataFrame | None","Get earning dates (future and historic)
+Gives 	EPS Estimate	Reported EPS	Surprise(%)
+for earning dates , there could be NaN values for future earnings if not estimated","Ticker
+Parameters
+:
+limit (int) – max amount of upcoming and recent earnings dates to return. Default value 12 should return next 4 quarters and last 8 quarters. Increase if more history is needed.
+
+proxy – requests proxy to use.
+
+Returns
+:
+pd.DataFrame",DataFrame,"Index = Dates
+Columns = ['EPS Estimate', 'Reported EPS', 'Surprise(%)']"
