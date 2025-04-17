@@ -15,11 +15,11 @@ langchain = "*"
 langchain-experimental = "*"
 openai = "*"
 chromadb = "*"
-newsapi-python = "*"
 yfinance = "*"
 prophet = "*"
 tiktoken = "*"
 gunicorn = "*"
+newsapi-python = "*"
 
 [dev-packages]
 
