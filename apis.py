@@ -58,7 +58,7 @@ async def get_fundamentals_values(fundamentals: List[str]= Query(...), ticker: s
     :param ticker
     :return: dictionary of fundamentals and its values
     """
-    fundamental_values = Fundamental.get_fundamenta_values(fundamentals,ticker )
+    fundamental_values = await Fundamental.get_fundamenta_values(fundamentals,ticker )
     return fundamental_values
 
 @app.get("/get_company_details/")

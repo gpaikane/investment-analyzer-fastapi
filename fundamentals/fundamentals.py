@@ -155,7 +155,7 @@ class Fundamental:
 
 
     @classmethod
-    def get_fundamenta_values(cls, fundamentals: list, ticker_name: str) -> dict:
+    async def get_fundamenta_values(cls, fundamentals: list, ticker_name: str) -> dict:
         """
 
         :param fundamentals:  list of fundamentals to be calculated
