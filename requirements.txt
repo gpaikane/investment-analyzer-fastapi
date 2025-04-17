@@ -48,6 +48,7 @@ fqdn==1.5.1
 frozendict==2.4.6
 frozenlist==1.5.0
 fsspec==2025.3.2
+git-filter-repo==2.47.0
 google-auth==2.39.0
 googleapis-common-protos==1.70.0
 grpcio==1.71.0
@@ -113,6 +114,7 @@ nbclient==0.10.2
 nbconvert==7.16.6
 nbformat==5.10.4
 nest-asyncio==1.6.0
+newsapi-python==0.2.7
 notebook==7.4.0
 notebook_shim==0.2.4
 numpy==2.0.2
