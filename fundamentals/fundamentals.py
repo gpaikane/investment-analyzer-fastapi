@@ -34,6 +34,10 @@ class Fundamental:
     get_function_prompt = """
     use a python code to print() dir(yf.Ticker)
     make you must print the final result
+    
+    VERY IMPORTANT NOTES:
+    Note 1: Always use the ["python_repl"] tool to execute python commands. 
+    Note 2: Always print(...) output at the end in the generated python code
     {format_instructions}
     """
 
