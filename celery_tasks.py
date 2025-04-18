@@ -2,11 +2,13 @@ import os
 import  ssl
 
 from celery import Celery
+from dotenv import load_dotenv
 
 from fundamentals.fundamentals import Fundamental
 from news.fetchnews import  FetchNews
 from  final_summary.summary import Summary
 
+load_dotenv()
 REDIS_URL = os.environ.get("REDIS_URL")
 
 celery_app = Celery(
