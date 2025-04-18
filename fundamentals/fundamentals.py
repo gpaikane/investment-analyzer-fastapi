@@ -8,6 +8,8 @@ from langchain.agents import Tool,AgentType
 from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
 
+
+
 class Fundamental:
     # Prompt templates
     find_ticker_value = """
@@ -91,7 +93,7 @@ class Fundamental:
         selected_methods_context = []
         for method in methods:
             print(method)
-            print(len(cls.vectorstore))
+            #print(len(cls.vectorstore))
             value = cls.vectorstore.max_marginal_relevance_search(method, k=1)
             print("VALUE:----", value)
             selected_methods_context.append(value[0].page_content)
@@ -100,8 +102,9 @@ class Fundamental:
 
     @classmethod
     def get_yfianance_function_list(cls) -> str:
+        print("getting methods supported by yfinance..........")
         methods = ResponseSchema(name="methods",
-                                 description="methods supported by yfianance python librabry which will be used to identify the fundamental later",
+                                 description="methods supported by yfinance python librabry which will be used to identify the fundamental later",
                                  type="list")
         response_schema = [methods]
         output_parser = StructuredOutputParser.from_response_schemas(response_schema)
@@ -153,9 +156,8 @@ class Fundamental:
         output = output_parser.parse(response.content)
         return output["fundamentals"]
 
-
     @classmethod
-    async def get_fundamenta_values(cls, fundamentals: list, ticker_name: str) -> dict:
+    def get_fundamenta_values(cls, fundamentals: list, ticker_name: str) -> dict:
         """
 
         :param fundamentals:  list of fundamentals to be calculated

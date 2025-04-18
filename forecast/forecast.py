@@ -5,6 +5,7 @@ import pandas as pd
 
 
 
+
 class ForeCast:
     @classmethod
     def get_history(cls, ticker, start_date = "2019-01-01"):

@@ -20,6 +20,9 @@ prophet = "*"
 tiktoken = "*"
 gunicorn = "*"
 newsapi-python = "*"
+celery = "*"
+redis = "*"
+eventlet = "*"
 
 [dev-packages]
 

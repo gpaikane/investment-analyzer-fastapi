@@ -1,7 +1,9 @@
 from dotenv import load_dotenv
 load_dotenv()
 from typing import List, Dict
+
 import create_chroma_db
+import logging
 
 from fundamentals.fundamentals import Fundamental
 from news.fetchnews import FetchNews
@@ -9,6 +11,7 @@ from forecast.forecast import ForeCast
 from final_summary.summary import Summary
 from fastapi import FastAPI, Query
 from pydantic import BaseModel
+import celery_tasks
 
 
 class TextInput(BaseModel):
@@ -51,15 +54,25 @@ async def get_top_fundamentals(input_data: IntInput):
 
 
 @app.get("/get_fundamentals_values/")
-async def get_fundamentals_values(fundamentals: List[str]= Query(...), ticker: str= Query(...)):
+async def get_fundamentals_values(fundamentals: List[str]= Query(...), ticker_name: str= Query(...)):
     """
     Calculate values for each fundamental
+    :param ticker_name:
     :param fundamentals: List
-    :param ticker
     :return: dictionary of fundamentals and its values
     """
-    fundamental_values = await Fundamental.get_fundamenta_values(fundamentals,ticker )
-    return fundamental_values
+
+    task = celery_tasks.get_fundamental_values.delay(fundamentals,ticker_name)
+    return {"task_id": task.id, "status": "started"}
+
+@app.get("/get_async_results/")
+async def get_async_results(task_id: str):
+    result = celery_tasks.celery_app.AsyncResult(task_id)
+
+    if result.ready():
+        return {"status": "completed", "result": result.result}
+    else:
+        return {"status": result.status}
 
 @app.get("/get_company_details/")
 async def get_company_details(text: str):
@@ -74,23 +87,28 @@ async def get_company_details(text: str):
 @app.get("/get_news/")
 async def get_news(company: str, suffix: str):
     """
-    Retrive top 5 latest news for the company and summarize it
+    Retrieve top 5 latest news for the company and summarize it
     :param company:  company name
-    :param suffix:  countru suffix
+    :param suffix:  country suffix
     :return: summary of news
     """
-    news = FetchNews.get_news(company, suffix)
-    return news
+    news_task = celery_tasks.search_news_get_summary.delay(company, suffix)
+    return {"task_id": news_task.id, "status": "started"}
+
 
 @app.get("/get_summary/")
-async def get_summary(inputData: DictMultiInput):
+async def get_summary(input_data: DictMultiInput):
     """
     Get detailed summary of how the short and long terms investments outlooks is for the company
-    :param inputData:  Input data contains fundamentals_values, news summary and company ticker
+    :param input_data:  Input data contains fundamentals_values, news summary and company ticker
     :return: Markdown formated summary
     """
-    summary = Summary.get_summary(inputData.fundamentals_values, inputData.new_summary, inputData.ticker)
-    return summary
+    logging.info("getting task id for get_summary")
+    summary_task = celery_tasks.get_final_summary.delay(input_data.fundamentals_values, input_data.new_summary, input_data.ticker)
+    logging.info("SUMMARY----TASK----" + str(summary_task))
+
+    return {"task_id": summary_task.id, "status": "started"}
+
 
 @app.get("/get_forecasted_data/")
 async def get_forecasted_data(ticker:str):
