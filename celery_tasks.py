@@ -42,11 +42,11 @@ broker_url = REDIS_URL
 result_backend = REDIS_URL
 
 broker_use_ssl = {
-    'ssl_cert_reqs': None  # 👈 disables strict SSL cert checking (works best with Heroku)
+    'ssl_cert_reqs': ssl.CERT_NONE  # 👈 disables strict SSL cert checking (works best with Heroku)
 }
 
 result_backend_use_ssl = {
-    'ssl_cert_reqs': None
+    'ssl_cert_reqs': ssl.CERT_NONE
 }
 
 celery_app = Celery('yourapp')
