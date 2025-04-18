@@ -3,7 +3,7 @@ import  ssl
 
 from celery import Celery
 from dotenv import load_dotenv
-
+import logging
 from fundamentals.fundamentals import Fundamental
 from news.fetchnews import  FetchNews
 from  final_summary.summary import Summary
@@ -37,16 +37,30 @@ celery_app.conf.broker_use_ssl = {
 
 @celery_app.task
 def get_fundamental_values( fundamentals: list, ticker_name: str) -> dict:
-    fundamental_values = Fundamental.get_fundamenta_values(fundamentals, ticker_name)
+    fundamental_values = dict()
+    try:
+        fundamental_values = Fundamental.get_fundamenta_values(fundamentals, ticker_name)
+    except Exception as e:
+        logging.info(e)
+
     return fundamental_values
 
 
 @celery_app.task
 def search_news_get_summary( company: str, country_suffix: str) -> dict:
-    news = FetchNews.get_news(company, country_suffix)
+    news= ""
+    try:
+        news = FetchNews.get_news(company, country_suffix)
+    except Exception as e:
+        logging.info(e)
+
     return news
 
 @celery_app.task
 def get_final_summary( fundamentals: dict[str,str], news_summary:str, ticker: str) -> dict:
-    news = Summary.get_summary(fundamentals, news_summary, ticker)
+    news = ""
+    try:
+        news = Summary.get_summary(fundamentals, news_summary, ticker)
+    except Exception as e:
+        logging.info(e)
     return news
