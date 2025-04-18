@@ -16,7 +16,7 @@ celery_app = Celery(
     broker=REDIS_URL,
     backend=REDIS_URL
 )
-
+"""
 celery_app.conf.update(
     broker_use_ssl={
         'ssl_cert_reqs': 'CERT_NONE'  # or CERT_OPTIONAL / CERT_REQUIRED
@@ -26,6 +26,7 @@ celery_app.conf.update(
     },
     result_expires=3600  # auto-expire after 1 hour (3600 seconds)
 )
+"""
 
 celery_app.conf.broker_transport_options = {"socket_timeout": 500}  # in seconds
 
@@ -38,7 +39,7 @@ celery_app.conf.redis_backend_use_ssl = {
     'ssl_cert_reqs': ssl.CERT_NONE  # <-- use the ssl constant, not a string
 }
 
-
+celery_app.conf.result_backend = None
 
 @celery_app.task
 def get_fundamental_values( fundamentals: list, ticker_name: str) -> dict:
