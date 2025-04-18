@@ -9,6 +9,7 @@ from news.fetchnews import  FetchNews
 from  final_summary.summary import Summary
 
 load_dotenv()
+""""
 REDIS_URL = os.environ.get("REDIS_URL")
 
 celery_app = Celery(
@@ -33,6 +34,28 @@ celery_app.conf.broker_transport_options = {"socket_timeout": 500}  # in seconds
 celery_app.conf.broker_use_ssl = {
     'ssl_cert_reqs': ssl.CERT_NONE  # <-- use the ssl constant, not a string
 }
+"""
+
+REDIS_URL = os.environ.get("REDIS_URL")  # Starts with rediss://...
+
+broker_url = REDIS_URL
+result_backend = REDIS_URL
+
+broker_use_ssl = {
+    'ssl_cert_reqs': None  # 👈 disables strict SSL cert checking (works best with Heroku)
+}
+
+result_backend_use_ssl = {
+    'ssl_cert_reqs': None
+}
+
+celery_app = Celery('yourapp')
+celery_app.conf.broker_url = broker_url
+celery_app.conf.result_backend = result_backend
+celery_app.conf.broker_use_ssl = broker_use_ssl
+celery_app.conf.result_backend_use_ssl = result_backend_use_ssl
+celery_app.conf.broker_transport_options = {"socket_timeout": 500}  # in seconds
+
 
 
 @celery_app.task
