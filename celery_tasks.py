@@ -39,8 +39,6 @@ celery_app.conf.redis_backend_use_ssl = {
     'ssl_cert_reqs': ssl.CERT_NONE  # <-- use the ssl constant, not a string
 }
 
-celery_app.conf.result_backend = None
-
 @celery_app.task
 def get_fundamental_values( fundamentals: list, ticker_name: str) -> dict:
     fundamental_values = dict()
