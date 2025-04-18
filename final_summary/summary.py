@@ -1,7 +1,7 @@
 
 from langchain.prompts import ChatPromptTemplate
 from langchain.chat_models import ChatOpenAI
-
+import logging
 
 class Summary:
 
@@ -30,6 +30,8 @@ class Summary:
     @classmethod
     def get_summary(cls, fundamentals, news_summary, ticker):
         summary_prompt= ""
+        logging.info("Generating final summary ----")
+        logging.info(fundamentals, news_summary, ticker)
         if (fundamentals is not None and  len(fundamentals) > 0) and (news_summary is None or len(news_summary) == 0):
             summary_prompt = ChatPromptTemplate.from_template(cls.summary_prompt_wt_fundamentals)
 
