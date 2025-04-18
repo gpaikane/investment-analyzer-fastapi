@@ -16,12 +16,14 @@ split_docs = splitter.split_documents(docs)
 embeddings = OpenAIEmbeddings()
 
 # Define the persist directory
-persist_directory = "./chroma_db"
+persist_directory = None#"./chroma_db"
 
+"""
 # Delete previous Chroma DB if it exists
 if os.path.exists(persist_directory):
     shutil.rmtree(persist_directory)
     print(f"Removed existing Chroma DB at: {persist_directory}")
+"""
 
 print("creating new chroma vector store")
 vectorstore = Chroma.from_documents(

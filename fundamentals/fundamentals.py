@@ -7,7 +7,7 @@ from langchain_experimental.utilities import PythonREPL
 from langchain.agents import Tool,AgentType
 from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
-
+from  create_chroma_db import vectorstore
 
 
 class Fundamental:
@@ -84,12 +84,15 @@ class Fundamental:
     )
 
     embedding = OpenAIEmbeddings()
-    persist_directory = "./chroma_db"
 
+    persist_directory = None #"./chroma_db"
+
+    """
     vectorstore = Chroma(
         persist_directory=persist_directory,
         embedding_function=embedding
     )
+    """
 
 
     @classmethod
@@ -98,7 +101,7 @@ class Fundamental:
         for method in methods:
             print(method)
             #print(len(cls.vectorstore))
-            value = cls.vectorstore.max_marginal_relevance_search(method, k=1)
+            value = vectorstore.max_marginal_relevance_search(method, k=1)
             print("VALUE:----", value)
             selected_methods_context.append(value[0].page_content)
         combined_context = "\n------\n".join(selected_methods_context)
