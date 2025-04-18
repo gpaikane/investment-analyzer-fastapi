@@ -7,7 +7,7 @@ from fundamentals.fundamentals import Fundamental
 from news.fetchnews import  FetchNews
 from  final_summary.summary import Summary
 
-REDIS_URL = os.getenv("REDIS_URL", "rediss://:p169e417713785899609895011fd88274d714a994d94566905fd4d2a0e2c0712e@ec2-18-209-77-225.compute-1.amazonaws.com:18610")
+REDIS_URL = os.environ.get("REDIS_URL")
 
 celery_app = Celery(
     "tasks",
