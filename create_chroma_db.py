@@ -36,7 +36,6 @@ def initialise_chroma_db():
 
     )
 
-    vectorstore.persist()
     print("vector_store_len", len(vectorstore))
 
     return vectorstore

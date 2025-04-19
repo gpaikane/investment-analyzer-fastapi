@@ -108,6 +108,7 @@ class Fundamental:
             print("VALUE:----", value)
             selected_methods_context.append(value[0].page_content)
         combined_context = "\n------\n".join(selected_methods_context)
+        del vectorstore
         return combined_context
 
     @classmethod
