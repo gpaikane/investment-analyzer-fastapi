@@ -7,7 +7,7 @@ from langchain_experimental.utilities import PythonREPL
 from langchain.agents import Tool,AgentType
 from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
-from  create_chroma_db import vectorstore
+import  create_chroma_db
 
 
 class Fundamental:
@@ -97,6 +97,9 @@ class Fundamental:
 
     @classmethod
     def get_context_from_methods(cls, methods: list) -> str:
+
+        vectorstore = create_chroma_db.initialise_chroma_db()
+
         selected_methods_context = []
         for method in methods:
             print(method)
