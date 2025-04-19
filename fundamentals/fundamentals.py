@@ -26,22 +26,26 @@ class Fundamental:
     input_value is given here: {input_value}
 
      {format_instructions}
+    
     """
 
     promt_find_fundamentals = """
     Generate a list of {n} top market fundamentals which are used to access stock before investing.
     We should be able to calculate or get the fundamentals using yfinance python library.
     {format_instructions}
+    
     """
 
     get_function_prompt = """
     use a python code to print() dir(yf.Ticker)
     make you must print the final result
     
-    VERY IMPORTANT NOTES:
-    Note 1: Always use the ["python_repl"] tool to execute python commands. 
-    Note 2: Always print(...) output at the end in the generated python code
     {format_instructions}
+    
+    VERY IMPORTANT NOTES:
+    Note 1: Always use the [python_repl] tool to execute python commands. 
+    Note 2: Always print(...) output at the end in the generated python code
+
     """
 
     get_important_methods = """
@@ -58,12 +62,11 @@ class Fundamental:
     make sure you print the output using `print(...)`
     
     VERY IMPORTANT NOTES:
-    Note 1: Always use the ["python_repl"] tool to execute python commands. 
+    Note 1: Always use the [python_repl] tool to execute python commands. 
     Note 2: In case you are unable to find an answer try with a new approach using yfinance python library
     Note 3: Always print(...) output at the end in the generated python code
 
     """
-
     python_repl = PythonREPL()
 
     # You can create the tool to pass to an agent
@@ -75,7 +78,7 @@ class Fundamental:
 
     chat = ChatOpenAI(
         temperature=0,
-        model="gpt-4o-mini"        )
+        model="gpt-4o-mini" )
 
     agent = create_python_agent(
         chat,
@@ -88,14 +91,6 @@ class Fundamental:
 
     embedding = OpenAIEmbeddings()
 
-    persist_directory = None #"./chroma_db"
-
-    """
-    vectorstore = Chroma(
-        persist_directory=persist_directory,
-        embedding_function=embedding
-    )
-    """
 
     @classmethod
     def invoke_agent(cls, message_to_agent, retry_num) -> Optional[dict[str, Any]]:
@@ -105,31 +100,30 @@ class Fundamental:
         while retries < retry_num:
             try:
                 message_funcs = cls.agent.invoke(message_to_agent)
-                break  # Exit loop if no exception
+                logging.info("Agent Message:.......", message_funcs)
+                return  message_funcs
             except Exception as e:
                 logging.exception(e)
                 logging.info("Triggering agent once again....")
                 retries += 1
+
         return  message_funcs
 
     @classmethod
     def get_context_from_methods(cls, methods: list) -> str:
 
-        vectorstore = create_chroma_db.initialise_chroma_db()
-
         selected_methods_context = []
         for method in methods:
             print(method)
             #print(len(cls.vectorstore))
-            value = vectorstore.max_marginal_relevance_search(method, k=1)
+            value = cls.vectorstore.max_marginal_relevance_search(method, k=1)
             print("VALUE:----", value)
             selected_methods_context.append(value[0].page_content)
         combined_context = "\n------\n".join(selected_methods_context)
-        del vectorstore
         return combined_context
 
     @classmethod
-    def get_yfianance_function_list(cls) -> str:
+    def get_yfianance_function_list(cls):
         logging.info("getting methods supported by yfinance..........")
         methods = ResponseSchema(name="methods",
                                  description="methods supported by yfinance python librabry which will be used to identify the fundamental later",
@@ -142,12 +136,11 @@ class Fundamental:
             format_instructions=format_instructions)
         logging.info("retrying to get_yfianance_function_list")
         message_funcs = cls.invoke_agent(get_function_message, 3)
-        return message_funcs.content
-
-
+        return message_funcs
 
     @classmethod
     def get_company_yfinance_ticker(cls, text: str) -> str:
+
         ticker = ResponseSchema(name="output_value",
                                 description="The ticker name supported by yfianance python librabry")
         response_schema = [ticker]
@@ -155,7 +148,7 @@ class Fundamental:
         format_instructions = output_parser.get_format_instructions()
         promt_input_value_template = ChatPromptTemplate.from_template(cls.find_ticker_value)
         message = promt_input_value_template.format_messages(input_value=text, format_instructions=format_instructions)
-        response = cls.invoke_agent(message, 2)
+        response = cls.chat.invoke(message)
         output = output_parser.parse(response.content)
 
         return output["output_value"]
@@ -174,7 +167,7 @@ class Fundamental:
         format_instructions = output_parser.get_format_instructions()
         promt_find_fundamentals_template = ChatPromptTemplate.from_template(cls.promt_find_fundamentals)
         message = promt_find_fundamentals_template.format_messages(n=count, format_instructions=format_instructions)
-        response = cls.invoke_agent(message, 2)
+        response = cls.chat.invoke(message)
         output = output_parser.parse(response.content)
         return output["fundamentals"]
 
@@ -186,6 +179,8 @@ class Fundamental:
         :param ticker_name:  ticker name as per yfianance
         :return:  dictionary of fundamentals
         """
+        cls.vectorstore = create_chroma_db.initialise_chroma_db()
+
         fundamentals_values = dict()
 
         y_finance_methods = cls.get_yfianance_function_list()
@@ -202,7 +197,7 @@ class Fundamental:
             message = get_important_methods_prompt.format_messages(methods=methods_list,
                                                                    format_instructions=format_instructions,
                                                                    fundamental=fundamental)
-            response = cls.invoke_agent(message,2)
+            response = cls.chat.invoke(message)
             output = output_parser.parse(response.content)
             return output["methods"]
 
@@ -227,5 +222,5 @@ class Fundamental:
                 value = calculate_fundamental_value(fundamental, selected_methods, context, ticker_name)
                 selected_value = value['output'] if type(value) == dict else value
                 fundamentals_values[fundamental] = selected_value if selected_value not in "I don't know." else None
-
+        del cls.vectorstore
         return fundamentals_values
