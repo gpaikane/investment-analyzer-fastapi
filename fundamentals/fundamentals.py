@@ -43,7 +43,7 @@ class Fundamental:
     {format_instructions}
     
     VERY IMPORTANT NOTES:
-    Note 1: Always use the [python_repl] tool to execute python commands. 
+    Note 1: use the provided tool to execute python commands. 
     Note 2: Always print(...) output at the end in the generated python code
 
     """
@@ -62,7 +62,7 @@ class Fundamental:
     make sure you print the output using `print(...)`
     
     VERY IMPORTANT NOTES:
-    Note 1: Always use the [python_repl] tool to execute python commands. 
+    Note 1: use the provided tool to execute python commands. 
     Note 2: In case you are unable to find an answer try with a new approach using yfinance python library
     Note 3: Always print(...) output at the end in the generated python code
 
@@ -85,7 +85,7 @@ class Fundamental:
         tool=repl_tool,
         verbose=False,
         handle_parsing_errors=True,
-        agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION
+        agent=AgentType.SELF_ASK_WITH_SEARCH
 
     )
 
@@ -117,7 +117,7 @@ class Fundamental:
             print(method)
             #print(len(cls.vectorstore))
             value = cls.vectorstore.max_marginal_relevance_search(method, k=1)
-            print("VALUE:----", value)
+            #print("VALUE:----", value)
             selected_methods_context.append(value[0].page_content)
         combined_context = "\n------\n".join(selected_methods_context)
         return combined_context
@@ -134,7 +134,7 @@ class Fundamental:
         promt_format_instructions_template = ChatPromptTemplate.from_template(cls.get_function_prompt)
         get_function_message = promt_format_instructions_template.format_messages(
             format_instructions=format_instructions)
-        logging.info("retrying to get_yfianance_function_list")
+        logging.info("trying to get_yfianance_function_list")
         message_funcs = cls.invoke_agent(get_function_message, 3)
         return message_funcs
 
