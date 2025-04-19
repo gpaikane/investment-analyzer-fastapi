@@ -1,3 +1,6 @@
+import logging
+from typing import Optional, Any
+
 from langchain.prompts import ChatPromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.output_parsers import ResponseSchema
@@ -94,6 +97,20 @@ class Fundamental:
     )
     """
 
+    @classmethod
+    def invoke_agent(cls, message_to_agent, retry_num) -> Optional[dict[str, Any]]:
+
+        message_funcs = None
+        retries = 0
+        while retries < retry_num:
+            try:
+                message_funcs = cls.agent.invoke(message_to_agent)
+                break  # Exit loop if no exception
+            except Exception as e:
+                logging.exception(e)
+                logging.info("Triggering agent once again....")
+                retries += 1
+        return  message_funcs
 
     @classmethod
     def get_context_from_methods(cls, methods: list) -> str:
@@ -113,7 +130,7 @@ class Fundamental:
 
     @classmethod
     def get_yfianance_function_list(cls) -> str:
-        print("getting methods supported by yfinance..........")
+        logging.info("getting methods supported by yfinance..........")
         methods = ResponseSchema(name="methods",
                                  description="methods supported by yfinance python librabry which will be used to identify the fundamental later",
                                  type="list")
@@ -123,15 +140,9 @@ class Fundamental:
         promt_format_instructions_template = ChatPromptTemplate.from_template(cls.get_function_prompt)
         get_function_message = promt_format_instructions_template.format_messages(
             format_instructions=format_instructions)
-        try:
-            message_funcs = cls.agent.invoke(get_function_message)
-        except Exception as e:
-            print(e)
-            print("retrying to get_yfianance_function_list")
-            message_funcs = cls.agent.invoke(get_function_message)
-
-
-        return message_funcs
+        logging.info("retrying to get_yfianance_function_list")
+        message_funcs = cls.invoke_agent(get_function_message, 3)
+        return message_funcs.content
 
 
 
@@ -144,7 +155,7 @@ class Fundamental:
         format_instructions = output_parser.get_format_instructions()
         promt_input_value_template = ChatPromptTemplate.from_template(cls.find_ticker_value)
         message = promt_input_value_template.format_messages(input_value=text, format_instructions=format_instructions)
-        response = cls.chat.invoke(message)
+        response = cls.invoke_agent(message, 2)
         output = output_parser.parse(response.content)
 
         return output["output_value"]
@@ -163,7 +174,7 @@ class Fundamental:
         format_instructions = output_parser.get_format_instructions()
         promt_find_fundamentals_template = ChatPromptTemplate.from_template(cls.promt_find_fundamentals)
         message = promt_find_fundamentals_template.format_messages(n=count, format_instructions=format_instructions)
-        response = cls.chat.invoke(message)
+        response = cls.invoke_agent(message, 2)
         output = output_parser.parse(response.content)
         return output["fundamentals"]
 
@@ -191,7 +202,7 @@ class Fundamental:
             message = get_important_methods_prompt.format_messages(methods=methods_list,
                                                                    format_instructions=format_instructions,
                                                                    fundamental=fundamental)
-            response = cls.chat.invoke(message)
+            response = cls.invoke_agent(message,2)
             output = output_parser.parse(response.content)
             return output["methods"]
 
@@ -200,33 +211,21 @@ class Fundamental:
             calculate_fundamental_prompt = ChatPromptTemplate.from_template(cls.calculate_fundamental_template)
             message = calculate_fundamental_prompt.format_messages(ticker_name=ticker_name, methods=selected_methods,
                                                                    fundamental=fundamental, combined_context=context)
-            fundamental_value = cls.agent.invoke(message)
+            fundamental_value = cls.invoke_agent(message,3)
             return fundamental_value
+
 
         for fundamental in fundamentals:
             selected_methods = select_sugested_methods(fundamental, y_finance_methods)
             context = cls.get_context_from_methods(selected_methods)
-            try:
-                value = calculate_fundamental_value(fundamental, selected_methods, context, ticker_name)
-            except Exception as e:
-                print(e)
-                print("retrying to calculate: ", fundamental)
-                value = calculate_fundamental_value(fundamental, selected_methods, context, ticker_name)
-
-            selected_value = ""
-            if type(value) == dict:
-                selected_value = value['output']
-            else:
-                selected_value = value
-
+            value = calculate_fundamental_value(fundamental, selected_methods, context, ticker_name)
+            selected_value = value['output'] if type(value) == dict else value
             fundamentals_values[fundamental] = selected_value if selected_value not in "I don't know." else None
-            if(fundamentals_values[fundamental] == None):
+
+            # Retry if the llm agent returns I don't know
+            if fundamentals_values[fundamental] is None:
                 value = calculate_fundamental_value(fundamental, selected_methods, context, ticker_name)
-                selected_value = ""
-                if type(value) == dict:
-                    selected_value = value['output']
-                else:
-                    selected_value = value
+                selected_value = value['output'] if type(value) == dict else value
                 fundamentals_values[fundamental] = selected_value if selected_value not in "I don't know." else None
 
         return fundamentals_values
