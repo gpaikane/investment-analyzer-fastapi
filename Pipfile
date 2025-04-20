@@ -23,7 +23,9 @@ newsapi-python = "*"
 celery = "*"
 redis = "*"
 eventlet = "*"
-pinecone = "*"
+pinecone-client = "==2.2.4"
+langchain-pinecone = "*"
+pinecone-notebooks = "*"
 
 [dev-packages]
 

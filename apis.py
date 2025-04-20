@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 load_dotenv()
 from typing import List, Dict
 
-import create_chroma_db
+import create_pinecone_db
 import logging
 
 from fundamentals.fundamentals import Fundamental

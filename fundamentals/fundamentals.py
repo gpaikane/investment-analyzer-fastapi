@@ -10,7 +10,8 @@ from langchain_experimental.utilities import PythonREPL
 from langchain.agents import Tool,AgentType
 from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
-import  create_chroma_db
+from  create_pinecone_db import vectorstore
+
 
 
 class Fundamental:
@@ -110,18 +111,18 @@ class Fundamental:
         return  message_funcs
 
     @classmethod
-    def get_context_from_methods(cls, methods: list, vectorstore) -> str:
+    def get_context_from_methods(cls, methods: list) -> str:
 
         selected_methods_context = []
         for method in methods:
             print(method)
-            print(len(vectorstore))
             value = vectorstore.max_marginal_relevance_search(method, k=1)
             print("VALUE:----", value)
             selected_methods_context.append(value[0].page_content)
         combined_context = "\n------\n".join(selected_methods_context)
         return combined_context
 
+    OpenAIEmbeddings
     @classmethod
     def get_yfianance_function_list(cls):
         logging.info("getting methods supported by yfinance..........")
@@ -179,7 +180,6 @@ class Fundamental:
         :param ticker_name:  ticker name as per yfianance
         :return:  dictionary of fundamentals
         """
-        vectorstore = create_chroma_db.initialise_chroma_db()
 
         fundamentals_values = dict()
 
@@ -212,7 +212,7 @@ class Fundamental:
 
         for fundamental in fundamentals:
             selected_methods = select_sugested_methods(fundamental, y_finance_methods)
-            context = cls.get_context_from_methods(selected_methods, vectorstore)
+            context = cls.get_context_from_methods(selected_methods)
             value = calculate_fundamental_value(fundamental, selected_methods, context, ticker_name)
             selected_value = value['output'] if type(value) == dict else value
             fundamentals_values[fundamental] = selected_value if selected_value not in "I don't know." else None
