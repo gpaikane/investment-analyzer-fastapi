@@ -43,7 +43,7 @@ class Summary:
             logging.info("fundamentals are generated and news_summary is generated")
             summary_prompt = ChatPromptTemplate.from_template(cls.summary_prompt)
 
-        logging.info("NEWSUMMURY----",news_summary)
+        logging.info("FINAL_NEWSUMMURY----",news_summary)
         if(summary_prompt == ""):
             return ""
         message = summary_prompt.format_messages(fundamentals=fundamentals, news_summary=news_summary, ticker=ticker)
