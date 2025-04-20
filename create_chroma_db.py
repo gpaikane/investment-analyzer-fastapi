@@ -1,10 +1,8 @@
 from langchain.vectorstores import Chroma
+from chromadb.config import Settings
 from langchain.embeddings import OpenAIEmbeddings
 from langchain_community.document_loaders import CSVLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-
-import os
-import shutil
 
 
 """
@@ -29,10 +27,13 @@ def initialise_chroma_db():
     print("creating new chroma vector store")
     vectorstore = Chroma.from_documents(
         documents=split_docs,
-        embedding=embeddings
+        embedding=embeddings,
+        client_settings=Settings(
+            chroma_db_impl="duckdb+parquet",
+            persist_directory=None  # Important for in-memory
+        )
     )
 
     print("vector_store_len", vectorstore._collection.count())
 
     return vectorstore
-    # Def
