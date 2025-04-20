@@ -23,6 +23,7 @@ newsapi-python = "*"
 celery = "*"
 redis = "*"
 eventlet = "*"
+pinecone = "*"
 
 [dev-packages]
 
