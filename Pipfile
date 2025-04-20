@@ -25,7 +25,6 @@ redis = "*"
 eventlet = "*"
 langchain-pinecone = "*"
 pinecone-notebooks = "*"
-pinecone-client = "*"
 pinecone = "*"
 
 [dev-packages]
