@@ -115,9 +115,9 @@ class Fundamental:
         selected_methods_context = []
         for method in methods:
             print(method)
-            #print(len(cls.vectorstore))
+            print(len(cls.vectorstore))
             value = cls.vectorstore.max_marginal_relevance_search(method, k=1)
-            #print("VALUE:----", value)
+            print("VALUE:----", value)
             selected_methods_context.append(value[0].page_content)
         combined_context = "\n------\n".join(selected_methods_context)
         return combined_context
