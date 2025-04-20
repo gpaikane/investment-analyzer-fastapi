@@ -110,13 +110,13 @@ class Fundamental:
         return  message_funcs
 
     @classmethod
-    def get_context_from_methods(cls, methods: list) -> str:
+    def get_context_from_methods(cls, methods: list, vectorstore) -> str:
 
         selected_methods_context = []
         for method in methods:
             print(method)
-            print(len(cls.vectorstore))
-            value = cls.vectorstore.max_marginal_relevance_search(method, k=1)
+            print(len(vectorstore))
+            value = vectorstore.max_marginal_relevance_search(method, k=1)
             print("VALUE:----", value)
             selected_methods_context.append(value[0].page_content)
         combined_context = "\n------\n".join(selected_methods_context)
@@ -179,7 +179,7 @@ class Fundamental:
         :param ticker_name:  ticker name as per yfianance
         :return:  dictionary of fundamentals
         """
-        cls.vectorstore = create_chroma_db.initialise_chroma_db()
+        vectorstore = create_chroma_db.initialise_chroma_db()
 
         fundamentals_values = dict()
 
@@ -212,7 +212,7 @@ class Fundamental:
 
         for fundamental in fundamentals:
             selected_methods = select_sugested_methods(fundamental, y_finance_methods)
-            context = cls.get_context_from_methods(selected_methods)
+            context = cls.get_context_from_methods(selected_methods, vectorstore)
             value = calculate_fundamental_value(fundamental, selected_methods, context, ticker_name)
             selected_value = value['output'] if type(value) == dict else value
             fundamentals_values[fundamental] = selected_value if selected_value not in "I don't know." else None
@@ -222,5 +222,4 @@ class Fundamental:
                 value = calculate_fundamental_value(fundamental, selected_methods, context, ticker_name)
                 selected_value = value['output'] if type(value) == dict else value
                 fundamentals_values[fundamental] = selected_value if selected_value not in "I don't know." else None
-        del cls.vectorstore
         return fundamentals_values
