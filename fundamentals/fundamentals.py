@@ -8,7 +8,6 @@ from langchain.output_parsers import StructuredOutputParser
 from langchain_experimental.agents.agent_toolkits import create_python_agent
 from langchain_experimental.utilities import PythonREPL
 from langchain.agents import Tool,AgentType
-from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
 from  create_pinecone_db import vectorstore
 

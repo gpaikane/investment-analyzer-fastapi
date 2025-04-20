@@ -3,7 +3,6 @@ from chromadb.config import Settings
 from langchain.embeddings import OpenAIEmbeddings
 from langchain_community.document_loaders import CSVLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-import getpass
 from pinecone import Pinecone, ServerlessSpec
 import time
 import  os
