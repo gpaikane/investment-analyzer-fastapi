@@ -29,8 +29,7 @@ def initialise_chroma_db():
         documents=split_docs,
         embedding=embeddings,
         client_settings=Settings(
-            chroma_db_impl="duckdb+parquet",
-            persist_directory=None  # Important for in-memory
+            chroma_db_impl="duckdb+parquet"
         )
     )
 
