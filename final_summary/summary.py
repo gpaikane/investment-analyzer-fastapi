@@ -33,14 +33,14 @@ class Summary:
         logging.info("Generating final summary ----")
         logging.info(fundamentals, news_summary, ticker)
         if (fundamentals is not None and  len(fundamentals) > 0) and (news_summary is None or len(news_summary) == 0):
-            logging.info("fundamentals are not generated, however news_summary is generated")
+            logging.info("fundamentals are  generated, however news_summary is not generated")
             summary_prompt = ChatPromptTemplate.from_template(cls.summary_prompt_wt_fundamentals)
 
         elif (fundamentals is  None or  len(fundamentals) == 0) and (news_summary is not None and len(news_summary) > 0):
-            logging.info("fundamentals are generated, however news_summary is not generated")
+            logging.info("fundamentals are not generated, however news_summary is  generated")
             summary_prompt = ChatPromptTemplate.from_template(cls.summary_prompt_wo_fundamentals)
         else:
-            logging.info("fundamentals are generated, however news_summary is generated")
+            logging.info("fundamentals are generated and news_summary is generated")
             summary_prompt = ChatPromptTemplate.from_template(cls.summary_prompt)
 
         logging.info("NEWSUMMURY----",news_summary)
