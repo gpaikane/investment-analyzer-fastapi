@@ -1,4 +1,4 @@
-from langchain.vectorstores import Chroma
+from langchain.vectorstores import Pinecone
 from langchain.embeddings import OpenAIEmbeddings
 from langchain_community.document_loaders import CSVLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -29,14 +29,14 @@ def initialise_chroma_db():
     persist_directory = None
 
     print("creating new chroma vector store")
-    vectorstore = Chroma.from_documents(
+    vectorstore = Pinecone.from_documents(
         documents=split_docs,
         embedding=embeddings,
         persist_directory=persist_directory
 
     )
 
-    print("vector_store_len", len(vectorstore))
+    print("vector_store_len")
 
     return vectorstore
     # Def
