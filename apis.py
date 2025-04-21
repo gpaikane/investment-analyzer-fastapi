@@ -30,7 +30,7 @@ class DictMultiInput(BaseModel):
 
 app = FastAPI()
 
-@app.get("/get_ticker/")
+@app.post("/get_ticker/")
 async def get_ticker(input_data: TextInput):
     """
     Get ticker supported by yfinance by calling llm
@@ -41,7 +41,7 @@ async def get_ticker(input_data: TextInput):
     ticker = Fundamental.get_company_yfinance_ticker(user_provided_text)
     return ticker
 
-@app.get("/get_top_fundamentals/")
+@app.post("/get_top_fundamentals/")
 async def get_top_fundamentals(input_data: IntInput):
     """
     Get top fundamentals which investors use from llm
@@ -101,7 +101,7 @@ async def get_news(company: str, suffix: str):
     return {"task_id": news_task.id, "status": "started"}
 
 
-@app.get("/get_summary/")
+@app.post("/get_summary/")
 async def get_summary(input_data: DictMultiInput):
     """
     Get detailed summary of how the short and long terms investments outlooks is for the company
