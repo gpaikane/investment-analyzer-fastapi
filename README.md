@@ -6,8 +6,7 @@
 * New API is used to search for news for the given company.
 * A final summary is genarated.
 * Here is the frontend repo: https://github.com/gpaikane/stock-analyzer-frontend which is basically a streamlit app https://company-stock-evaluator-ab684352912d.herokuapp.com/ currently hosted on **heroku**
-
+  
 * Here is a flowchart of the backend
 
-* ![Untitled Diagram drawio](https://github.com/user-attachments/assets/2b640a8f-1ccd-4abc-b516-e28c784250c6)
-
+![Untitled Diagram drawio (2)](https://github.com/user-attachments/assets/f9b728fc-dee4-44ec-93a0-569094f9b3da)
