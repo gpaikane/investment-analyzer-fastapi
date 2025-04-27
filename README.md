@@ -1,4 +1,4 @@
-* The repo is created to create end points which generats fundamentals, generate forecast, analyze news and get summary, the fast api app is hosted on **heroku** https://investment-analyzer-fastapi-5e7e9fc21917.herokuapp.com/doc
+* The repo is created to create end points which generats fundamentals, generate forecast, analyze news and get summary, the fast api app is hosted on **heroku** https://investment-analyzer-fastapi-5e7e9fc21917.herokuapp.com/docs
 * As we have deployed on heroku and some of the calls take more than 1 minute due to the complexity we need to use **Celery** worker configured with **Redis** to process background job, the background jobs are polled to get the results asynchronously. 
 * Procfile can be referred to start fastapi app and celery worker.
 * We use `langchain` and `gpt-4o-mini` for llm tasks.
