@@ -121,7 +121,6 @@ class Fundamental:
         combined_context = "\n------\n".join(selected_methods_context)
         return combined_context
 
-    OpenAIEmbeddings
     @classmethod
     def get_yfianance_function_list(cls):
         logging.info("getting methods supported by yfinance..........")
