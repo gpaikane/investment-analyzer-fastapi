@@ -36,7 +36,7 @@ if os.path.exists(persist_directory):
 
 
 
-def initialise_chroma_db():
+def initialise_pinecone_db():
     # Load documents
     loader = CSVLoader("yfinance_method_details..csv")  # fixed double-dot typo
     docs = loader.load()
@@ -54,4 +54,4 @@ def initialise_chroma_db():
     return vector_store
 
 # Call the function
-vectorstore = initialise_chroma_db()
+vectorstore = initialise_pinecone_db()
