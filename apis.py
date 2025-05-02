@@ -14,15 +14,6 @@ from pydantic import BaseModel
 import celery_tasks
 
 
-class TextInput(BaseModel):
-    text: str
-
-class IntInput(BaseModel):
-    fundamental_count: int
-
-class ListInput(BaseModel):
-    text: list
-
 class DictMultiInput(BaseModel):
     fundamentals_values: Dict[str, str]
     new_summary: str
@@ -30,25 +21,25 @@ class DictMultiInput(BaseModel):
 
 app = FastAPI()
 
-@app.post("/get_ticker/")
-async def get_ticker(input_data: TextInput):
+@app.get("/get_ticker/")
+async def get_ticker(text: str):
     """
     Get ticker supported by yfinance by calling llm
-    :param input_data: Text/Info on company provided by user
+    :param text: Text/Info on company provided by user
     :return:ticker
     """
-    user_provided_text = input_data.text
+    user_provided_text =  text
     ticker = Fundamental.get_company_yfinance_ticker(user_provided_text)
     return ticker
 
-@app.post("/get_top_fundamentals/")
-async def get_top_fundamentals(input_data: IntInput):
+@app.get("/get_top_fundamentals/")
+async def get_top_fundamentals(fundamental_count: int):
     """
     Get top fundamentals which investors use from llm
-    :param input_data: count of fundamentals
+    :param fundamental_count: count of fundamentals
     :return: list of top n fundamentals, `n` is specified in the input data
     """
-    user_provided_text = input_data.fundamental_count
+    user_provided_text = fundamental_count
     fundamentals = Fundamental.get_top_n_fundamentals(int(user_provided_text))
     return fundamentals
 
@@ -101,14 +92,14 @@ async def get_news(company: str, suffix: str):
     return {"task_id": news_task.id, "status": "started"}
 
 
-@app.post("/get_summary/")
-async def get_summary(input_data: DictMultiInput):
+@app.post("/generate_summary/")
+async def generate_summary(input_data : DictMultiInput):
     """
-    Get detailed summary of how the short and long terms investments outlooks is for the company
-    :param input_data:  Input data contains fundamentals_values, news summary and company ticker
+    Get detailed summary of how the short and long terms investments outlooks is for the company:
+    :param input_data, contains news summary and ticker
     :return: task_id and status of background job which creates markdown formated summary
     """
-    logging.info("getting task id for get_summary")
+    logging.info("getting task id for generate_summary")
     summary_task = celery_tasks.get_final_summary.delay(input_data.fundamentals_values, input_data.new_summary, input_data.ticker)
     logging.info("SUMMARY----TASK----" + str(summary_task))
 

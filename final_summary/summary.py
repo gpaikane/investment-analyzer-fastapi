@@ -30,7 +30,7 @@ class Summary:
     @classmethod
     def get_summary(cls, fundamentals, news_summary, ticker):
         summary_prompt= ""
-        logging.info("Generating final summary ----")
+        print("Generating final summary ----")
         logging.info(fundamentals, news_summary, ticker)
         if (fundamentals is not None and  len(fundamentals) > 0) and (news_summary is None or len(news_summary) == 0):
             logging.info("fundamentals are  generated, however news_summary is not generated")

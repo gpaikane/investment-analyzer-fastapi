@@ -5,11 +5,13 @@ from langchain.prompts import ChatPromptTemplate
 from langchain.chat_models import ChatOpenAI
 from langchain.output_parsers import ResponseSchema
 from langchain.output_parsers import StructuredOutputParser
+from langchain_core.runnables import RunnableMap, RunnableLambda
 from langchain_experimental.agents.agent_toolkits import create_python_agent
 from langchain_experimental.utilities import PythonREPL
 from langchain.agents import Tool,AgentType
 from langchain.embeddings import OpenAIEmbeddings
 from  create_pinecone_db import vectorstore
+from langchain.chains.llm import LLMChain
 
 
 
@@ -37,19 +39,29 @@ class Fundamental:
     """
 
     get_function_prompt = """
-    use a python code to print() dir(yf.Ticker)
-    make you must print the final result
-    
+    You are an agent that answers questions by running Python code using the tool `python_repl`.
+
+    Your job is to write a Python command and run it using this tool. You must ALWAYS use `print(...)` to display the final result.
+
+    Task:
+    Use Python to print the result of `dir(yf.Ticker)`.
+
+    Example:
+    Action: python_repl
+    Action Input: 
+    import yfinance as yf
+    print(dir(yf.Ticker))
+    """
+
+    format_with_instructions = """
+    format data: {data} as mentioned below
+
     {format_instructions}
-    
-    VERY IMPORTANT NOTES:
-    Note 1: use the provided tool to execute python commands. 
-    Note 2: Always print(...) output at the end in the generated python code
 
     """
 
     get_important_methods = """
-    Here are the important attributes and methods {methods} of yfinance.Ticker among them Identify the methods which we can use to calculate {fundamental}.
+    Here are the important attributes and methods {all_methods} of yfinance.Ticker among them Identify the methods which we can use to calculate {fundamental}.
     {format_instructions}
     """
 
@@ -76,14 +88,14 @@ class Fundamental:
         func=python_repl.run,
     )
 
-    chat = ChatOpenAI(
+    llm = ChatOpenAI(
         temperature=0,
         model="gpt-4o-mini" )
 
     agent = create_python_agent(
-        chat,
+        llm,
         tool=repl_tool,
-        verbose=False,
+        verbose=True,
         handle_parsing_errors=True,
         agent=AgentType.SELF_ASK_WITH_SEARCH
 
@@ -109,17 +121,18 @@ class Fundamental:
 
         return  message_funcs
 
-    @classmethod
-    def get_context_from_methods(cls, methods: list) -> str:
 
+    @classmethod
+    def get_context_from_methods(cls, methods: tuple) -> dict:
         selected_methods_context = []
-        for method in methods:
+        for method in methods[0]:
             print(method)
             value = vectorstore.max_marginal_relevance_search(method, k=1)
             print("VALUE:----", value)
             selected_methods_context.append(value[0].page_content)
         combined_context = "\n------\n".join(selected_methods_context)
-        return combined_context
+        return {'combined_context': combined_context}
+
 
     @classmethod
     def get_yfianance_function_list(cls):
@@ -128,14 +141,22 @@ class Fundamental:
                                  description="methods supported by yfinance python librabry which will be used to identify the fundamental later",
                                  type="list")
         response_schema = [methods]
-        output_parser = StructuredOutputParser.from_response_schemas(response_schema)
-        format_instructions = output_parser.get_format_instructions()
-        promt_format_instructions_template = ChatPromptTemplate.from_template(cls.get_function_prompt)
-        get_function_message = promt_format_instructions_template.format_messages(
-            format_instructions=format_instructions)
+        output_parser_methods = StructuredOutputParser.from_response_schemas(response_schema)
+        format_instructions = output_parser_methods.get_format_instructions()
+        promt_format_instructions_template = ChatPromptTemplate.from_template(cls.format_with_instructions)
+        print_values_prompt = ChatPromptTemplate.from_template(cls.get_function_prompt)
         logging.info("trying to get_yfianance_function_list")
-        message_funcs = cls.invoke_agent(get_function_message, 3)
-        return message_funcs
+
+        map_run = RunnableMap(
+            {
+                'data': lambda x: cls.invoke_agent(x['print_values_prompt'], 2),
+                'format_instructions': lambda x: x['format_instructions']
+            }
+        )
+        chain = map_run | promt_format_instructions_template | cls.llm | output_parser_methods
+        value = chain.invoke({'print_values_prompt': print_values_prompt, 'format_instructions': format_instructions})
+        return  value['methods']
+
 
     @classmethod
     def get_company_yfinance_ticker(cls, text: str) -> str:
@@ -143,14 +164,14 @@ class Fundamental:
         ticker = ResponseSchema(name="output_value",
                                 description="The ticker name supported by yfianance python librabry")
         response_schema = [ticker]
+
         output_parser = StructuredOutputParser.from_response_schemas(response_schema)
         format_instructions = output_parser.get_format_instructions()
-        promt_input_value_template = ChatPromptTemplate.from_template(cls.find_ticker_value)
-        message = promt_input_value_template.format_messages(input_value=text, format_instructions=format_instructions)
-        response = cls.chat.invoke(message)
-        output = output_parser.parse(response.content)
 
-        return output["output_value"]
+        prompt_input_value_template = ChatPromptTemplate.from_template(cls.find_ticker_value)
+        ticker_chain = LLMChain(llm=cls.llm, prompt=prompt_input_value_template, output_parser=output_parser)
+        response = ticker_chain.invoke({'input_value': text, 'format_instructions': format_instructions})
+        return response['text']['output_value']
 
     @classmethod
     def get_top_n_fundamentals(cls, count: int) -> list:
@@ -159,19 +180,20 @@ class Fundamental:
         :return: list of fundamentals
         """
         fundametal_list = ResponseSchema(name="fundamentals",
-                                         description="list of fundamentals seperated by comma in list format ",
+                                         description="list of fundamentals separated by comma in list format ",
                                          type="list")
         response_schema = [fundametal_list]
         output_parser = StructuredOutputParser.from_response_schemas(response_schema)
         format_instructions = output_parser.get_format_instructions()
-        promt_find_fundamentals_template = ChatPromptTemplate.from_template(cls.promt_find_fundamentals)
-        message = promt_find_fundamentals_template.format_messages(n=count, format_instructions=format_instructions)
-        response = cls.chat.invoke(message)
-        output = output_parser.parse(response.content)
-        return output["fundamentals"]
+        prompt_find_fundamentals_template = ChatPromptTemplate.from_template(cls.promt_find_fundamentals)
+        fundamental_chain = LLMChain(prompt=prompt_find_fundamentals_template, llm=cls.llm, output_parser=output_parser)
+        fundamentals = fundamental_chain.invoke({'n': count, 'format_instructions': format_instructions})
+        return fundamentals['text']['fundamentals']
+
 
     @classmethod
     def get_fundamenta_values(cls, fundamentals: list, ticker_name: str) -> dict:
+
         """
 
         :param fundamentals:  list of fundamentals to be calculated
@@ -183,41 +205,51 @@ class Fundamental:
 
         y_finance_methods = cls.get_yfianance_function_list()
 
-        def select_sugested_methods(fundamental, methods_list) -> list:
+        def get_method_details(x):
+
+            methods = chain_imp_methods.invoke({'fundamental': x['fundamental'], 'all_methods': x['all_methods'],
+                                                'format_instructions': x['format_instructions']})['text']['methods'],
+            logging.info("Selected methods:", methods)
+            return {'methods': methods,
+                    'ticker_name': x['ticker_name'],
+                    'fundamental': x['fundamental'],
+                    'combined_context': cls.get_context_from_methods(methods)}
+
+        def invoke_agent_two_retries(x):
+            return cls.invoke_agent(x, 2),
+
+        logging.info("fundamentals:",fundamentals)
+        for fundamental in fundamentals:
+            print("Getting value of fundamental: ", fundamental)
 
             methods = ResponseSchema(name="methods",
                                      description="methods or methods supported by yfianance python librabry which can be used to identify or calculate the fundamental value, include max 3 methods",
                                      type="list")
+
             response_schema = [methods]
             output_parser = StructuredOutputParser.from_response_schemas(response_schema)
-            format_instructions = output_parser.get_format_instructions()
+            format_instructions_get_methods = output_parser.get_format_instructions()
             get_important_methods_prompt = ChatPromptTemplate.from_template(cls.get_important_methods)
-            message = get_important_methods_prompt.format_messages(methods=methods_list,
-                                                                   format_instructions=format_instructions,
-                                                                   fundamental=fundamental)
-            response = cls.chat.invoke(message)
-            output = output_parser.parse(response.content)
-            return output["methods"]
-
-        def calculate_fundamental_value(fundamental, selected_methods, context, ticker_name):
-
+            chain_imp_methods = LLMChain(prompt=get_important_methods_prompt, llm=cls.llm, output_parser=output_parser)
             calculate_fundamental_prompt = ChatPromptTemplate.from_template(cls.calculate_fundamental_template)
-            message = calculate_fundamental_prompt.format_messages(ticker_name=ticker_name, methods=selected_methods,
-                                                                   fundamental=fundamental, combined_context=context)
-            fundamental_value = cls.invoke_agent(message,3)
-            return fundamental_value
+            final_chain = RunnableLambda(get_method_details) | calculate_fundamental_prompt | invoke_agent_two_retries
+            value = final_chain.invoke({'fundamental': fundamental,
+                                        'all_methods': y_finance_methods,
+                                        'format_instructions': format_instructions_get_methods,
+                                        'ticker_name': ticker_name})
+            logging.info("value: ", value)
 
+            selected_value = value[0]['output'] if type(value[0]) == dict else value
 
-        for fundamental in fundamentals:
-            selected_methods = select_sugested_methods(fundamental, y_finance_methods)
-            context = cls.get_context_from_methods(selected_methods)
-            value = calculate_fundamental_value(fundamental, selected_methods, context, ticker_name)
-            selected_value = value['output'] if type(value) == dict else value
             fundamentals_values[fundamental] = selected_value if selected_value not in "I don't know." else None
 
             # Retry if the llm agent returns I don't know
             if fundamentals_values[fundamental] is None:
-                value = calculate_fundamental_value(fundamental, selected_methods, context, ticker_name)
-                selected_value = value['output'] if type(value) == dict else value
+                value = final_chain.invoke({'fundamental': fundamental,
+                                            'all_methods': y_finance_methods,
+                                            'format_instructions': format_instructions_get_methods,
+                                            'ticker_name': ticker_name})
+                selected_value = value[0]['output'] if type(value[0]) == dict else value
                 fundamentals_values[fundamental] = selected_value if selected_value not in "I don't know." else None
+
         return fundamentals_values
